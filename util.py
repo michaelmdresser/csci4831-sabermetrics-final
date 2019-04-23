@@ -1,6 +1,19 @@
 import pandas as pd
 from pybaseball.playerid_lookup import get_lookup_table
 
+###
+### USAGE
+###
+### from util import make_pitcher_df, make_efp_series, make_batter_df, make_efb_series
+### from pybaseball import batting_stats, statcast
+###
+### statcast_data = statcast(???)
+### fangraphs_batting_data = batting_data(???)
+###
+### efp = make_efp_series(make_pitcher_df(statcast))
+### efb = make_efb_series(make_batter_df(fangraphs_batting_data, statcast_data))
+###
+
 # gets the number of batters a pitcher faced where the pitch count went above 5
 # requires a statcast df
 def get_pca5_series_pitcher(df):
