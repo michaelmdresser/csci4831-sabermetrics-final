@@ -1,5 +1,6 @@
 import pandas as pd
 from pybaseball.playerid_lookup import get_lookup_table
+from pybaseball import playerid_reverse_lookup
 
 ###
 ### USAGE
@@ -265,3 +266,20 @@ def make_efb_series(batter_df):
     df = batter_df
     return (((1.0 * df["HR"] + 0.8*df["3B"] + 0.5*df["2B"] + 0.2*df["1B"] + 0.5*df["SB"] - \
            (0.4*df["SO"] + 0.2*df["BB"] + 0.2*df["PCA5"])) / df["PA"]) + 2) * 10
+
+# makes efb json as taken by the efb variable in efb.html
+def make_efb_json(df_fangraphs, df_statcast):
+    b_df = make_batter_df(b, statcast)
+    efb_s = make_efb_series(b_df).sort_values(ascending=False)
+    return efb_s.rename("EFB").to_frame().merge(b_df[["Name", "Team"]], left_index=True, right_index=True).to_json(orient="columns")
+
+# makes efp json as taken by the efp variable in efp.html
+def make_efp_json(statcast):
+    efp_s = make_efp_series(make_pitcher_df(statcast))
+    ids = []
+        for i in efp_s.index:
+            ids.append(i)
+
+    pitcher_ids = playerid_reverse_lookup(ids)
+
+    return efp_s.rename("EFP").to_frame().merge(pitcher_ids[["name_last", "name_first", "key_mlbam"]], left_index=True, right_on="key_mlbam").set_index("key_mlbam", drop=True).to_json(orient="columns")
