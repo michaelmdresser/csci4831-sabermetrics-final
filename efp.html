@@ -205,11 +205,12 @@ function highlight(filter){
     }
   }
 
-  if (vals.length > 10) {
-    return colorScale(d.y)
-  }
+  
 
   svg.selectAll("rect").attr("fill", function(d) {
+    if (vals.length > 17) {
+    return colorScale(d.y)
+  }
     for (var i = 0; i < vals.length; i++) {
       let efp = vals[i]
       if (efp >= d.x && efp <= d.x + d.dx) {
