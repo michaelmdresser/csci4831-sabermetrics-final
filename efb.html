@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<!--
+  This is some of the worst code I think I have ever written in my life. But it works and looks decent.
+-->
+
+<html>
+<head>
+<title>CSCI 4831: Sabermetrics Final</title>
+</head>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+
+<h1>EFB: Excitement Factor for Batting</h1>
+<h5>Data from 2018</h5>
+<h3>Michael Dresser and Mark Wilmes</h3>
+
+<img src="efb.svg">
+<br>
+<p>PCA5 is a custom stat that is the number of plate appearances in which the pitch count went above 5.</p> 
+
+<div id="dataList" style="width:800px">
+<br>
+<div id="searchSection" style="width:350px; float: left">
+<input type="text" id="playerInput" onkeyup="myFunction(playerInput, myUL)" placeholder="Search for names..">
+
+<ul id="myUL">
+  <!-- <li><b>Name: EFB</b></li> -->
+</ul>
+
+</div>
+
+<div id="teamList" style="width:350px; float: right">
+  <input type="text" id="myInput2" onkeyup="myFunction(myInput2, teamUL)" placeholder="Search for team">
+
+  <ul id="teamUL">
+    <!-- <li><b>Team Name: Total EFB</b></li> -->
+  </ul>
+</div>
+</div>
+
+<script>
+function swap(json){
+  var ret = {};
+  for(var key in json){
+    ret[json[key]] = key;
+  }
+  return ret;
+}
+
+function round(value, decimals) {
+  return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+}
+
+
+function sortList(ul){
+    var new_ul = ul.cloneNode(false);
+
+    // Add all lis to an array
+    var lis = [];
+    for(var i = ul.childNodes.length; i--;){
+        if(ul.childNodes[i].nodeName === 'LI')
+            lis.push(ul.childNodes[i]);
+    }
+
+    // Sort the lis in descending order
+    lis.sort(function(a, b){
+       return parseInt(b.childNodes[0].data.split(":")[1].substring(1,), 10) - 
+              parseInt(a.childNodes[0].data.split(":")[1].substring(1,), 10);
+    });
+
+    // Add them into the ul in order
+    for(var i = 0; i < lis.length; i++)
+        new_ul.appendChild(lis[i]);
+    ul.parentNode.replaceChild(new_ul, ul);
+}
+
+
+var efb = {"EFB":{"553902":20.6804123711,"643446":20.3709677419,"606299":20.2723279649,"592743":20.27,"516416":20.2262658228,"645302":20.2121212121,"488726":20.206022187,"578428":20.1939655172,"501571":20.15625,"609275":20.147766323,"609280":20.1435643564,"493329":20.1431064572,"543829":20.130952381,"605141":20.1221498371,"544369":20.1072056239,"572816":20.0844277674,"649557":20.064159292,"596019":20.0604026846,"435062":20.05625,"435559":20.0515463918,"502517":20.0455840456,"516782":20.0445544554,"592518":20.0211565585,"593160":20.0056577086,"596748":20.0,"405395":19.9979919679,"592696":19.9949324324,"527038":19.9836829837,"456488":19.9800796813,"607680":19.9778597786,"430945":19.9738988581,"622569":19.9682539683,"645277":19.9561403509,"514888":19.9465776294,"542255":19.9439393939,"592885":19.9324116743,"607345":19.9304812834,"595879":19.9302325581,"502082":19.9263157895,"519203":19.9203007519,"543685":19.9195979899,"429664":19.9137931034,"605412":19.9132653061,"466320":19.8992805755,"664058":19.8990228013,"450314":19.8865384615,"425877":19.8846918489,"605480":19.8841911765,"608324":19.8822695035,"518934":19.8795180723,"608566":19.8769230769,"591720":19.8725490196,"506703":19.8644067797,"606466":19.8620689655,"435079":19.861423221,"572039":19.8595041322,"571448":19.8573551263,"621563":19.8550458716,"595777":19.8535353535,"444482":19.832247557,"596115":19.824695122,"500208":19.8241106719,"642133":19.8219178082,"519058":19.8125984252,"591741":19.8108108108,"455976":19.809929078,"643217":19.8093797277,"624428":19.8011363636,"593428":19.7982758621,"642708":19.7972972973,"641645":19.7972972973,"400121":19.7972440945,"518792":19.7955010225,"607208":19.7945945946,"624577":19.7927927928,"572041":19.7913043478,"553869":19.7906137184,"622534":19.7822736031,"502226":19.7810650888,"656185":19.7800687285,"500743":19.7784090909,"543939":19.769041769,"593700":19.7677419355,"457759":19.7676056338,"592663":19.7645951036,"453568":19.7629310345,"571595":19.7581699346,"516472":19.7547169811,"546991":19.751565762,"640457":19.7486910995,"502481":19.746835443,"456715":19.7467741935,"547989":19.7432188065,"571697":19.7398119122,"502110":19.7395993837,"467092":19.7355769231,"521692":19.7352941176,"581527":19.7328042328,"542303":19.7277070064,"475582":19.7275541796,"434658":19.7268518519,"446334":19.72265625,"444876":19.7175141243,"541650":19.7125748503,"457763":19.7120535714,"643396":19.7095959596,"467827":19.69751693,"596451":19.6923076923,"518692":19.6859971711,"641313":19.6831683168,"452678":19.6824324324,"462101":19.6799065421,"592206":19.6755162242,"621311":19.6752767528,"643393":19.6677966102,"592626":19.6659142212,"500871":19.6640253566,"643376":19.6631578947,"452655":19.6626746507,"544725":19.6545454545,"500874":19.6508474576,"543281":19.6363636364,"502210":19.6344969199,"471865":19.6329365079,"570731":19.630738523,"605113":19.6276595745,"571431":19.6261127596,"650490":19.625,"516770":19.6228748068,"592387":19.6202290076,"425844":19.6197183099,"600303":19.6145833333,"666971":19.608365019,"592669":19.6077097506,"502143":19.6063829787,"518960":19.6057268722,"444489":19.6053412463,"434670":19.6051282051,"571771":19.6017316017,"570481":19.6013986014,"608385":19.5988023952,"592567":19.5978494624,"491696":19.595959596,"456124":19.5936073059,"545361":19.5921052632,"461314":19.5909090909,"595375":19.5903614458,"596146":19.5875613748,"545341":19.5865800866,"608671":19.5865633075,"588751":19.5856697819,"660271":19.583106267,"134181":19.58004158,"622682":19.5799086758,"594828":19.578713969,"546318":19.5778894472,"408236":19.577540107,"660670":19.5770020534,"592863":19.5757575758,"456665":19.5697211155,"571745":19.5695461201,"463610":19.5671641791,"656811":19.5647058824,"593871":19.5645645646,"641583":19.5615763547,"518586":19.5590062112,"628338":19.5548961424,"445055":19.5546075085,"572228":19.5465838509,"435622":19.5460420032,"570256":19.5401869159,"571740":19.5395683453,"543877":19.5390334572,"592200":19.5384615385,"446359":19.5375494071,"518902":19.5342465753,"621573":19.5327868852,"547982":19.5297450425,"643603":19.5274261603,"642851":19.5254237288,"572073":19.5217391304,"474568":19.5206422018,"500135":19.5194174757,"519023":19.5182481752,"622666":19.5152671756,"543760":19.5149359886,"543776":19.514084507,"445988":19.5119617225,"657077":19.511627907,"622168":19.5106382979,"594694":19.5087719298,"517369":19.5073995772,"501981":19.504587156,"608369":19.5043478261,"646240":19.5040816327,"453286":19.5,"543068":19.4982142857,"408045":19.4898710866,"596059":19.4897196262,"572122":19.4857142857,"543768":19.4855195911,"594988":19.476744186,"501896":19.4743589744,"570560":19.4743202417,"594011":19.4735099338,"543309":19.4683544304,"543807":19.4677419355,"576397":19.4651741294,"553993":19.4603960396,"602922":19.4579439252,"541645":19.4545454545,"543333":19.4505169867,"476704":19.4485294118,"458731":19.4482758621,"444432":19.4469273743,"571788":19.446866485,"605508":19.4462809917,"527043":19.4449760766,"458913":19.4444444444,"467055":19.4444444444,"467793":19.4432989691,"571980":19.4426229508,"543401":19.4425956739,"553988":19.4420600858,"542364":19.4405594406,"656305":19.4399350649,"641856":19.4393939394,"595281":19.4332425068,"408234":19.4331210191,"608577":19.4328358209,"446308":19.4317343173,"543063":19.430976431,"605119":19.4298507463,"656669":19.427184466,"623993":19.4259259259,"429665":19.4248704663,"592192":19.4136253041,"608384":19.4129464286,"571466":19.4118773946,"572008":19.4110032362,"519048":19.4095860566,"493316":19.4076433121,"520471":19.4039634146,"434778":19.4033970276,"571657":19.4025974026,"606115":19.4016393443,"591971":19.4,"519222":19.4,"460576":19.3995098039,"605512":19.3967391304,"650402":19.3966942149,"592348":19.3963414634,"501303":19.393442623,"460086":19.3908450704,"641598":19.3880597015,"600524":19.3869731801,"475174":19.3850174216,"435263":19.3842592593,"592325":19.3822525597,"571976":19.3819241983,"657656":19.3806818182,"457727":19.3802083333,"547172":19.3796296296,"641432":19.3796296296,"622194":19.3793103448,"656775":19.3769633508,"657557":19.3755102041,"572821":19.3734177215,"641553":19.3671706263,"641820":19.3663522013,"592178":19.3654266958,"595978":19.3650306748,"641355":19.3607594937,"640447":19.3603238866,"446386":19.3574660633,"518618":19.3539019964,"621020":19.3527204503,"608654":19.3519313305,"502054":19.349122807,"596847":19.3393665158,"491676":19.3392461197,"452254":19.3387096774,"542340":19.3378640777,"605421":19.3375,"571851":19.3356643357,"543228":19.3333333333,"656555":19.3318181818,"621453":19.3289473684,"640461":19.3273273273,"542583":19.3268551237,"608475":19.3267326733,"553882":19.3229813665,"543376":19.3214285714,"665742":19.3157894737,"543305":19.313253012,"570799":19.3125,"594824":19.3125,"455117":19.3118811881,"598265":19.308411215,"592407":19.3072289157,"572365":19.3,"460026":19.2950819672,"543308":19.2948717949,"465041":19.2945544554,"572761":19.29394387,"489149":19.2924791086,"543699":19.2923076923,"595956":19.2898550725,"572191":19.2883116883,"614177":19.2877192982,"624407":19.2876712329,"458015":19.2841091493,"642086":19.2818791946,"456078":19.2817679558,"593993":19.28125,"575929":19.28125,"502671":19.2811594203,"503556":19.2807971014,"543257":19.2795698925,"605361":19.2793296089,"605170":19.275,"518626":19.2694063927,"453943":19.2690677966,"621514":19.2638888889,"542921":19.2587064677,"457705":19.2580645161,"608365":19.2580645161,"664040":19.2567567568,"641531":19.2551546392,"474832":19.2543859649,"594777":19.2536231884,"457803":19.2520775623,"607776":19.2476190476,"664068":19.2458677686,"592261":19.2417302799,"606192":19.2351816444,"624585":19.233463035,"475247":19.2307692308,"642336":19.2258064516,"542979":19.2247191011,"400284":19.2245989305,"592444":19.2226980728,"595909":19.216828479,"460269":19.2121212121,"621566":19.2106060606,"623520":19.2095238095,"663656":19.2083333333,"664056":19.206088993,"572033":19.2058823529,"519317":19.1957446809,"518735":19.194980695,"620446":19.1851851852,"621002":19.1823529412,"425783":19.1819548872,"596144":19.1794871795,"596119":19.1787439614,"608597":19.1752336449,"457708":19.1745513866,"448602":19.1744680851,"620439":19.1733333333,"608700":19.1732851986,"435522":19.1708542714,"624424":19.1661442006,"547180":19.1611510791,"624414":19.1525423729,"594953":19.1514476615,"573135":19.1510791367,"547170":19.1509433962,"596142":19.1497326203,"598284":19.1486486486,"621043":19.1474358974,"523253":19.1466346154,"543484":19.144,"607043":19.1420560748,"621439":19.1382978723,"571970":19.1351351351,"607054":19.1300813008,"621035":19.1258278146,"595885":19.1189710611,"514917":19.115819209,"621028":19.1134020619,"453923":19.1083743842,"460077":19.1043956044,"641487":19.1014492754,"594807":19.1007025761,"621446":19.0985221675,"543510":19.0984682713,"446263":19.0980926431,"519346":19.0971223022,"605509":19.0921052632,"595751":19.0901856764,"519306":19.0845588235,"543194":19.0810810811,"571679":19.0754716981,"592273":19.0697674419,"641319":19.0688073394,"475253":19.063973064,"434158":19.0570719603,"571506":19.0558882236,"614173":19.0519480519,"451594":19.0508982036,"545350":19.0468085106,"642162":19.045112782,"642715":19.0433436533,"518614":19.0401891253,"459964":19.0365853659,"545358":19.036,"664057":19.0348837209,"543302":19.0344827586,"607387":19.0340136054,"621493":19.0272108844,"519299":19.0265486726,"642423":19.0256410256,"506702":19.0243055556,"600474":19.0234741784,"501659":19.0132450331,"605486":19.0121580547,"592122":19.0111940299,"488818":19.01,"600869":19.0064620355,"543543":19.0039370079,"641684":19.0,"571974":19.0,"542208":19.0,"519333":19.0,"641857":19.0,"534606":18.9944444444,"641933":18.9929577465,"476883":18.9921259843,"571718":18.9888888889,"571918":18.9882352941,"571875":18.987394958,"435064":18.9801324503,"641343":18.9793814433,"656941":18.9764705882,"554430":18.9666666667,"592450":18.9638554217,"452095":18.9628378378,"506747":18.9577464789,"468504":18.9558823529,"593528":18.9555555556,"621044":18.9550561798,"641525":18.9516129032,
+"455104":18.9361111111,"425784":18.9230769231,"596129":18.9215686275,"570267":18.914893617,"571912":18.9134199134,"596103":18.9111111111,"660162":18.9015384615,"621512":18.9,"454560":18.8961748634,"607430":18.8955223881,"608336":18.8856152513,"431145":18.875,"607468":18.8707482993,"605204":18.8672566372,"624636":18.8666666667,"455139":18.8615023474,"449181":18.8494623656,"642180":18.8428571429,"461865":18.8320610687,"501213":18.8166666667,"605548":18.8157894737,"407812":18.8,"572287":18.7802469136,"472528":18.7708333333,"571437":18.7649122807,"571602":18.7560483871,"605131":18.7100840336,"542908":18.7042253521,"622046":18.6935483871,"606988":18.6896551724,"594798":18.6621621622,"605244":18.6615384615,"425772":18.6467889908,"621559":18.6417910448,"664023":18.6298701299,"465753":18.6184210526,"457706":18.6133333333,"608701":18.6116504854,"599096":18.6082474227,"642082":18.5923913043,"595284":18.5906976744,"592230":18.564516129,"605233":18.5581395349,"592680":18.55625,"593934":18.5551839465,"452657":18.5538461538,"571945":18.5492957746,"518774":18.5263157895,"592791":18.5238095238,"572204":18.5109489051,"446481":18.5086705202,"448801":18.4980842912,"571578":18.4925373134,"621433":18.4421768707,"547379":18.419047619,"607257":18.3846153846,"488771":18.3378378378,"488671":18.1965811966,"592685":18.088,"500779":18.0689655172,"452104":18.0166666667,"592351":18.0,"543294":17.9545454545,"643327":17.7846153846,"607536":17.7183098592,"605400":17.7,"461829":17.6545454545,"502706":17.625,"467100":17.5714285714,"592314":17.5},"Name":{"553902":"Willians Astudillo","643446":"Jeff McNeil","606299":"Jose Peraza","592743":"Andrelton Simmons","516416":"Jean Segura","645302":"Victor Robles","488726":"Michael Brantley","578428":"Jose Iglesias","501571":"Juan Lagares","609275":"Adalberto Mondesi","609280":"Miguel Andujar","493329":"Yuli Gurriel","543829":"Dee Gordon","605141":"Mookie Betts","544369":"Didi Gregorius","572816":"Corey Dickerson","649557":"Aledmys Diaz","596019":"Francisco Lindor","435062":"Howie Kendrick","435559":"Kurt Suzuki","502517":"Daniel Murphy","516782":"Starling Marte","592518":"Manny Machado","593160":"Whit Merrifield","596748":"Maikel Franco","405395":"Albert Pujols","592696":"Eddie Rosario","527038":"Wilmer Flores","456488":"Eduardo Nunez","607680":"Kevin Pillar","430945":"Adam Jones","622569":"Pablo Reyes","645277":"Ozzie Albies","514888":"Jose Altuve","542255":"Ender Inciarte","592885":"Christian Yelich","607345":"Kevan Smith","595879":"Javier Baez","502082":"Lonnie Chisenhall","519203":"Anthony Rizzo","543685":"Anthony Rendon","429664":"Robinson Cano","605412":"Joe Panik","466320":"Melky Cabrera","664058":"David Fletcher","450314":"Ben Zobrist","425877":"Yadier Molina","605480":"Mallex Smith","608324":"Alex Bregman","518934":"DJ LeMahieu","608566":"German Marquez","591720":"Ronald Torreyes","506703":"Adrian Sanchez","606466":"Ketel Marte","435079":"Ian Kinsler","572039":"Stephen Piscotty","571448":"Nolan Arenado","621563":"Joey Wendle","595777":"Jurickson Profar","444482":"David Peralta","596115":"Trevor Story","500208":"Yangervis Solarte","642133":"Rowdy Tellez","519058":"Mike Moustakas","591741":"Jose Osuna","455976":"Nick Markakis","643217":"Andrew Benintendi","624428":"Adam Frazier","593428":"Xander Bogaerts","642708":"Amed Rosario","641645":"Luis Guillorme","400121":"Victor Martinez","518792":"Jason Heyward","607208":"Trea Turner","624577":"Yasiel Puig","572041":"A.J. Pollock","553869":"Elias Diaz","622534":"Manuel Margot","502226":"Craig Gentry","656185":"Greg Allen","500743":"Miguel Rojas","543939":"Kolten Wong","593700":"Alen Hanson","457759":"Justin Turner","592663":"J.T. Realmuto","453568":"Charlie Blackmon","571595":"Noel Cuevas","516472":"Francisco Arcia","546991":"Albert Almora Jr.","640457":"Austin Meadows","502481":"Jarrod Dyson","456715":"Lorenzo Cain","547989":"Jose Abreu","571697":"Scooter Gennett","502110":"J.D. Martinez","467092":"Wilson Ramos","521692":"Salvador Perez","581527":"Devon Travis","542303":"Marcell Ozuna","475582":"Ryan Zimmerman","434658":"Rajai Davis","446334":"Evan Longoria","444876":"Alcides Escobar","541650":"Hernan Perez","457763":"Buster Posey","643396":"Isiah Kiner-Falefa","467827":"Gerardo Parra","596451":"Roman Quinn","518692":"Freddie Freeman","641313":"Tim Anderson","452678":"Asdrubal Cabrera","462101":"Elvis Andrus","592206":"Nicholas Castellanos","621311":"David Dahl","643393":"Tony Kemp","592626":"Joc Pederson","500871":"Eduardo Escobar","643376":"Danny Jansen","452655":"Denard Span","544725":"Leury Garcia","500874":"Jose Martinez","543281":"Josh Harrison","502210":"Josh Reddick","471865":"Carlos Gonzalez","570731":"Jonathan Schoop","605113":"Nick Ahmed","571431":"Matt Adams","650490":"Yandy Diaz","516770":"Starlin Castro","592387":"Ryon Healy","425844":"Zack Greinke","600303":"Tommy La Stella","666971":"Lourdes Gurriel Jr.","592669":"Hunter Renfroe","502143":"Danny Valencia","518960":"Jonathan Lucroy","444489":"Manny Pina","434670":"Hanley Ramirez","571771":"Enrique Hernandez","570481":"Erik Gonzalez","608385":"Jesse Winker","592567":"Colin Moran","491696":"Jesus Sucre","456124":"Erik Kratz","545361":"Mike Trout","461314":"Matt Kemp","595375":"J.T. Riddle","596146":"Max Kepler","545341":"Randal Grichuk","608671":"Travis Jankowski","588751":"Adeiny Hechavarria","660271":"Shohei Ohtani","134181":"Adrian Beltre","622682":"Victor Reyes","594828":"Evan Gattis","546318":"Odubel Herrera","408236":"Adrian Gonzalez","660670":"Ronald Acuna Jr.","592863":"Mason Williams","456665":"Steve Pearce","571745":"Mitch Haniger","463610":"Gregorio Petit","656811":"Ryan O\'Hearn","593871":"Jorge Polanco","641583":"Dustin Fowler","518586":"Charlie Culberson","628338":"Guillermo Heredia","445055":"Jon Jay","572228":"Luke Voit","435622":"Ian Desmond","570256":"Gregory Polanco","571740":"Billy Hamilton","543877":"Christian Vazquez","592200":"Curt Casali","446359":"Zack Cozart","518902":"Pete Kozma","621573":"Austin Dean","547982":"Leonys Martin","643603":"Tyler White","642851":"Austin Wynns","572073":"Joey Rickard","474568":"Jordy Mercer","500135":"Ronny Rodriguez","519023":"Devin Mesoraco","622666":"Johan Camargo","543760":"Marcus Semien","543776":"JB Shuck","445988":"Martin Prado","657077":"Alex Verdugo","622168":"Yairo Munoz","594694":"Wilmer Difo","517369":"Jose Pirela","501981":"Khris Davis","608369":"Corey Seager","646240":"Rafael Devers","453286":"Max Scherzer","543068":"C.J. Cron","408045":"Joe Mauer","596059":"Rougned Odor","572122":"Kyle Seager","543768":"Travis Shaw","594988":"Scott Schebler","501896":"David Freese","570560":"Yolmer Sanchez","594011":"Rosell Herrera","543309":"Kyle Higashioka","543807":"George Springer","576397":"Jedd Gyorko","553993":"Eugenio Suarez","602922":"Jose Rondon","541645":"Avisail Garcia","543333":"Eric Hosmer","476704":"Jed Lowrie","458731":"Brett Gardner","444432":"Mark Trumbo","571788":"Brock Holt","605508":"Charlie Tilson","527043":"Jefry Marte","458913":"Eric Young Jr.","467055":"Pablo Sandoval","467793":"Carlos Santana","571980":"Tyler Naquin","543401":"Jason Kipnis","553988":"Dixon Machado","542364":"Rafael Ortega","656305":"Matt Chapman","641856":"Billy McKinney","595281":"Kevin Kiermaier","408234":"Miguel Cabrera","608577":"Nomar Mazara","446308":"Matt Wieters","543063":"Brandon Crawford","605119":"Brian Anderson","656669":"Jordan Luplow","623993":"Anthony Santander","429665":"Edwin Encarnacion","592192":"Mark Canha","608384":"Nick Williams","571466":"Tucker Barnhart","572008":"Chris Owings","519048":"Mitch Moreland","493316":"Yoenis Cespedes","520471":"Freddy Galvis","434778":"Kendrys Morales","571657":"Kyle Farmer","606115":"Orlando Arcia","591971":"Breyvic Valera","519222":"Austin Romine","460576":"Carlos Gomez","605512":"Preston Tucker","650402":"Gleyber Torres","592348":"Niko Goodrum","501303":"Ehire Adrianza","460086":"Alex Gordon","641598":"Mitch Garver","600524":"Renato Nunez","475174":"Yonder Alonso","435263":"Brian McCann","592325":"Ben Gamel","571976":"Wil Myers","657656":"Ramon Laureano","457727":"Cameron Maybin","547172":"Tony Wolters","641432":"Willie Calhoun","622194":"Bruce Maxwell","656775":"Cedric Mullins II","657557":"Paul DeJong","572821":"Brian Dozier","641553":"Adam Engel","641820":"Trey Mancini","592178":"Kris Bryant","595978":"Austin Hedges","641355":"Cody Bellinger","640447":"Phillip Ervin","446386":"Brandon Guyer","518618":"Derek Dietrich","621020":"Dansby Swanson","608654":"Johnny Field","502054":"Tommy Pham","596847":"Ji-Man Choi","491676":"Gorkys Hernandez","452254":"Hunter Pence","542340":"Jonathan Villar","605421":"Michael Perez","571851":"Spencer Kieboom","543228":"Yan Gomes","656555":"Rhys Hoskins","621453":"Steven Duggar","640461":"Chad Pinder","542583":"Jesus Aguilar","608475":"Dawel Lugo","553882":"Omar Narvaez","543376":"Caleb Joseph","665742":"Juan Soto","543305":"Aaron Hicks","570799":"Christian Villanueva","594824":"Greg Garcia","455117":"Martin Maldonado","598265":"Jackie Bradley Jr.","592407":"Bryan Holaday","572365":"Ryan Goins","460026":"Nick Hundley","543308":"John Hicks","465041":"Francisco Cervelli","572761":"Matt Carpenter","489149":"Logan Morrison","543699":"Tanner Roark","595956":"Cam Gallagher","572191":"Michael A. Taylor","614177":"Franmil Reyes","624407":"Tzu-Wei Lin","458015":"Joey Votto","642086":"Dominic Smith","456078":"Welington Castillo","593993":"Jose Briceno","575929":"Willson Contreras","502671":"Paul Goldschmidt","503556":"Marwin Gonzalez","543257":"Robbie Grossman","605361":"Nick Martini","605170":"Victor Caratini","518626":"Josh Donaldson","453943":"Todd Frazier","621514":"Christin Stewart","542921":"Tim Beckham","457705":"Andrew McCutchen","608365":"Addison Russell","664040":"Brandon Lowe","641531":"Hunter Dozier","474832":"Brandon Belt","594777":"Kole Calhoun","457803":"Jay Bruce","607776":"Mac Williamson","664068":"Scott Kingery","592261":"Delino DeShields","606192":"Teoscar Hernandez","624585":"Jorge Soler","475247":"Ryan Flaherty","642336":"Francisco Mejia",
+"542979":"Keon Broxton","400284":"Chase Utley","592444":"JaCoby Jones","595909":"Jake Cave","460269":"Chris Gimenez","621566":"Matt Olson","623520":"David Bote","663656":"Kyle Tucker","664056":"Harrison Bader","572033":"Josh Phegley","519317":"Giancarlo Stanton","518735":"Yasmani Grandal","620446":"Richard Urena","621002":"Daniel Robertson","425783":"Shin-Soo Choo","596144":"Cheslor Cuthbert","596119":"Blake Swihart","608597":"Ronald Guzman","457708":"Justin Upton","448602":"Mark Reynolds","620439":"Franklin Barreto","608700":"Kevin Plawecki","435522":"Neil Walker","624424":"Michael Conforto","547180":"Bryce Harper","624414":"Christian Arroyo","594953":"Daniel Palka","573135":"Tyler Saladino","547170":"Nicky Delmonico","596142":"Gary Sanchez","598284":"Peter O\'Brien","621043":"Carlos Correa","523253":"Logan Forsythe","543484":"Mikie Mahtook","607043":"Brandon Nimmo","621439":"Byron Buxton","571970":"Max Muncy","607054":"Jace Peterson","621035":"Chris Taylor","595885":"Greg Bird","514917":"Cesar Hernandez","621028":"Kevin Newman","453923":"Gregor Blanco","460077":"Drew Butera","641487":"J.P. Crawford","594807":"Adam Duvall","621446":"Lewis Brinson","543510":"James McCann","446263":"Lucas Duda","519346":"Eric Thames","605509":"Kelby Tomlinson","595751":"Jorge Alfaro","519306":"Steven Souza Jr.","543194":"Isaac Galloway","571679":"David Freitas","592273":"Brandon Drury","641319":"Carlos Asuaje","475253":"Justin Smoak","434158":"Curtis Granderson","571506":"Justin Bour","614173":"Franchy Cordero","451594":"Dexter Fowler","545350":"Jake Marisnick","642162":"Pat Valaika","642715":"Willy Adames","518614":"Daniel Descalso","459964":"Matt Joyce","545358":"Max Stassi","664057":"Andrew Stevenson","543302":"Chris Herrmann","607387":"Ryan Rua","621493":"Taylor Ward","519299":"Eric Sogard","642423":"Magneuris Sierra","506702":"Sandy Leon","600474":"Pedro Severino","501659":"Abraham Almonte","605486":"Cory Spangenberg","592122":"Tyler Austin","488818":"Chase d\'Arnaud","600869":"Jeimer Candelario","543543":"Brad Miller","641684":"Michael Hermosillo","571974":"John Ryan Murphy","542208":"Carlos Perez","519333":"Matt Szczur","641857":"Ryan McMahon","534606":"Ryan LaMarre","641933":"Tyler O\'Neill","476883":"Pedro Alvarez","571718":"Brian Goodwin","571918":"Deven Marrero","571875":"Jake Lamb","435064":"Bobby Wilson","641343":"Jake Bauers","656941":"Kyle Schwarber","554430":"Zack Wheeler","592450":"Aaron Judge","452095":"Tyler Flowers","506747":"Francisco Pena","468504":"Jhoulys Chacin","593528":"Jorge Bonifacio","621044":"Jesmuel Valentin","641525":"Brandon Dixon","455104":"Chris Iannetta","425784":"Rene Rivera","596129":"Daniel Vogelbach","570267":"Domingo Santana","571912":"Luke Maile","596103":"Austin Slater","660162":"Yoan Moncada","621512":"Tomas Nido","454560":"A.J. Ellis","607430":"John Andreoli","608336":"Joey Gallo","431145":"Russell Martin","607468":"Alex Blandino","605204":"J.D. Davis","624636":"Carlos Tocci","455139":"Robinson Chirinos","449181":"Paulo Orlando","642180":"Tyler Wade","461865":"Andrew Romine","501213":"Moises Sierra","605548":"Bradley Zimmer","407812":"Matt Holliday","572287":"Mike Zunino","472528":"Luis Valbuena","571437":"Aaron Altherr","571602":"Matt Davidson","605131":"Austin Barnes","542908":"Jett Bandy","622046":"Chris Shaw","606988":"Grayson Greiner","594798":"Jacob deGrom","605244":"Aramis Garcia","425772":"Jeff Mathis","621559":"Max Moroff","664023":"Ian Happ","465753":"Pedro Florimon","457706":"Austin Jackson","608701":"Rob Refsnyder","599096":"Dilson Herrera","642082":"Chance Sisco","595284":"Andrew Knapp","592230":"Kaleb Cowart","605233":"Derek Fisher","592680":"Yadiel Rivera","593934":"Miguel Sano","452657":"Jon Lester","571945":"Miles Mikolas","518774":"Matt Harvey","592791":"Jameson Taillon","572204":"Trayce Thompson","446481":"Sean Rodriguez","448801":"Chris Davis","571578":"Patrick Corbin","621433":"Brett Phillips","547379":"Roberto Perez","607257":"Raffy Lopez","488771":"Jason Castro","488671":"Alex Avila","592685":"Drew Robinson","500779":"Jose Quintana","452104":"Chase Headley","592351":"Jon Gray","543294":"Kyle Hendricks","643327":"Zack Godley","607536":"Kyle Freeland","605400":"Aaron Nola","461829":"Gio Gonzalez","502706":"Derek Holland","467100":"Ivan Nova","592314":"Mike Foltynewicz"},"Team":{"553902":"Twins","643446":"Mets","606299":"Reds","592743":"Angels","516416":"Mariners","645302":"Nationals","488726":"Indians","578428":"Tigers","501571":"Mets","609275":"Royals","609280":"Yankees","493329":"Astros","543829":"Mariners","605141":"Red Sox","544369":"Yankees","572816":"Pirates","649557":"Blue Jays","596019":"Indians","435062":"Nationals","435559":"Braves","502517":"- - -","516782":"Pirates","592518":"- - -","593160":"Royals","596748":"Phillies","405395":"Angels","592696":"Twins","527038":"Mets","456488":"Red Sox","607680":"Blue Jays","430945":"Orioles","622569":"Pirates","645277":"Braves","514888":"Astros","542255":"Braves","592885":"Brewers","607345":"White Sox","595879":"Cubs","502082":"Indians","519203":"Cubs","543685":"Nationals","429664":"Mariners","605412":"Giants","466320":"Indians","664058":"Angels","450314":"Cubs","425877":"Cardinals","605480":"Rays","608324":"Astros","518934":"Rockies","608566":"Rockies","591720":"Yankees","506703":"Nationals","606466":"Diamondbacks","435079":"- - -","572039":"Athletics","571448":"Rockies","621563":"Rays","595777":"Rangers","444482":"Diamondbacks","596115":"Rockies","500208":"Blue Jays","642133":"Blue Jays","519058":"- - -","591741":"Pirates","455976":"Braves","643217":"Red Sox","624428":"Pirates","593428":"Red Sox","642708":"Mets","641645":"Mets","400121":"Tigers","518792":"Cubs","607208":"Nationals","624577":"Dodgers","572041":"Diamondbacks","553869":"Pirates","622534":"Padres","502226":"Orioles","656185":"Indians","500743":"Marlins","543939":"Cardinals","593700":"Giants","457759":"Dodgers","592663":"Marlins","453568":"Rockies","571595":"Rockies","516472":"Angels","546991":"Cubs","640457":"- - -","502481":"Diamondbacks","456715":"Brewers","547989":"White Sox","571697":"Reds","502110":"Red Sox","467092":"- - -","521692":"Royals","581527":"Blue Jays","542303":"Cardinals","475582":"Nationals","434658":"Indians","446334":"Giants","444876":"Royals","541650":"Brewers","457763":"Giants","643396":"Rangers","467827":"Rockies","596451":"Phillies","518692":"Braves","641313":"White Sox","452678":"- - -","462101":"Rangers","592206":"Tigers","621311":"Rockies","643393":"Astros","592626":"Dodgers","500871":"- - -","643376":"Blue Jays","452655":"- - -","544725":"White Sox","500874":"Cardinals","543281":"Pirates","502210":"Astros","471865":"Rockies","570731":"- - -","605113":"Diamondbacks","571431":"- - -","650490":"Indians","516770":"Marlins","592387":"Mariners","425844":"Diamondbacks","600303":"Cubs","666971":"Blue Jays","592669":"Padres","502143":"Orioles","518960":"Athletics","444489":"Brewers","434670":"Red Sox","571771":"Dodgers","570481":"Indians","608385":"Reds","592567":"Pirates","491696":"Rays","456124":"Brewers","545361":"Angels","461314":"Dodgers","595375":"Marlins","596146":"Twins","545341":"Blue Jays","608671":"Padres","588751":"- - -","660271":"Angels","134181":"Rangers","622682":"Tigers","594828":"Astros","546318":"Phillies","408236":"Mets","660670":"Braves","592863":"Reds","456665":"- - -","571745":"Mariners","463610":"Twins","656811":"Royals","593871":"Twins","641583":"Athletics","518586":"Braves","628338":"Mariners","445055":"- - -","572228":"- - -","435622":"Rockies","570256":"Pirates","571740":"Reds","543877":"Red Sox","592200":"Reds","446359":"Angels","518902":"Tigers","621573":"Marlins","547982":"- - -","643603":"Astros","642851":"Orioles","572073":"Orioles","474568":"Pirates","500135":"Tigers","519023":"- - -","622666":"Braves","543760":"Athletics","543776":"Marlins","445988":"Marlins","657077":"Dodgers","622168":"Cardinals","594694":"Nationals","517369":"Padres","501981":"Athletics","608369":"Dodgers","646240":"Red Sox","453286":"Nationals","543068":"Rays","408045":"Twins","596059":"Rangers","572122":"Mariners","543768":"Brewers","594988":"Reds","501896":"- - -","570560":"White Sox","594011":"- - -","543309":"Yankees","543807":"Astros","576397":"Cardinals","553993":"Reds","602922":"White Sox","541645":"White Sox","543333":"Padres","476704":"Athletics","458731":"Yankees","444432":"Orioles","571788":"Red Sox","605508":"White Sox","527043":"Angels","458913":"Angels","467055":"Giants","467793":"Phillies","571980":"Indians","543401":"Indians","553988":"Tigers","542364":"Marlins","656305":"Athletics","641856":"- - -","595281":"Rays","408234":"Tigers","608577":"Rangers","446308":"Nationals","543063":"Giants","605119":"Marlins","656669":"Pirates","623993":"Orioles","429665":"Indians","592192":"Athletics","608384":"Phillies","571466":"Reds","572008":"Diamondbacks","519048":"Red Sox","493316":"Mets","520471":"Padres","434778":"Blue Jays","571657":"Dodgers","606115":"Brewers","591971":"- - -","519222":"Yankees","460576":"Rays","605512":"- - -","650402":"Yankees","592348":"Tigers","501303":"Twins","460086":"Royals","641598":"Twins","600524":"- - -","475174":"Indians","435263":"Astros","592325":"Mariners","571976":"Padres","657656":"Athletics","457727":"- - -","547172":"Rockies","641432":"Rangers","622194":"Athletics","656775":"Orioles","657557":"Cardinals","572821":"- - -","641553":"White Sox","641820":"Orioles","592178":"Cubs","595978":"Padres","641355":"Dodgers","640447":"Reds","446386":"Indians","518618":"Marlins","621020":"Braves","608654":"- - -","502054":"- - -","596847":"- - -","491676":"Giants","452254":"Giants","542340":"- - -","605421":"Rays","571851":"Nationals","543228":"Indians","656555":"Phillies","621453":"Giants","640461":"Athletics","542583":"Brewers","608475":"Tigers","553882":"White Sox","543376":"Orioles","665742":"Nationals","543305":"Yankees","570799":"Padres","594824":"Cardinals","455117":"- - -","598265":"Red Sox","592407":"Marlins","572365":"Royals","460026":"Giants","543308":"Tigers","465041":"Pirates",
+"572761":"Cardinals","489149":"Twins","543699":"Nationals","595956":"Royals","572191":"Nationals","614177":"Padres","624407":"Red Sox","458015":"Reds","642086":"Mets","456078":"White Sox","593993":"Angels","575929":"Cubs","502671":"Diamondbacks","503556":"Astros","543257":"Twins","605361":"Athletics","605170":"Cubs","518626":"- - -","453943":"Mets","621514":"Tigers","542921":"Orioles","457705":"- - -","608365":"Cubs","664040":"Rays","641531":"Royals","474832":"Giants","594777":"Angels","457803":"Mets","607776":"Giants","664068":"Phillies","592261":"Rangers","606192":"Blue Jays","624585":"Royals","475247":"Braves","642336":"- - -","542979":"Brewers","400284":"Dodgers","592444":"Tigers","595909":"Twins","460269":"- - -","621566":"Athletics","623520":"Cubs","663656":"Astros","664056":"Cardinals","572033":"Athletics","519317":"Yankees","518735":"Dodgers","620446":"Blue Jays","621002":"Rays","425783":"Rangers","596144":"Royals","596119":"Red Sox","608597":"Rangers","457708":"Angels","448602":"Nationals","620439":"Athletics","608700":"Mets","435522":"Yankees","624424":"Mets","547180":"Nationals","624414":"Rays","594953":"White Sox","573135":"- - -","547170":"White Sox","596142":"Yankees","598284":"Marlins","621043":"Astros","523253":"- - -","543484":"Tigers","607043":"Mets","621439":"Twins","571970":"Dodgers","607054":"- - -","621035":"Dodgers","595885":"Yankees","514917":"Phillies","621028":"Pirates","453923":"Giants","460077":"- - -","641487":"Phillies","594807":"- - -","621446":"Marlins","543510":"Tigers","446263":"- - -","519346":"Brewers","605509":"Giants","595751":"Phillies","519306":"Diamondbacks","543194":"Marlins","571679":"Mariners","592273":"- - -","641319":"Padres","475253":"Blue Jays","434158":"- - -","571506":"- - -","614173":"Padres","451594":"Cardinals","545350":"Astros","642162":"Rockies","642715":"Rays","518614":"Diamondbacks","459964":"Athletics","545358":"Astros","664057":"Nationals","543302":"Mariners","607387":"Rangers","621493":"Angels","519299":"Brewers","642423":"Marlins","506702":"Red Sox","600474":"Nationals","501659":"Royals","605486":"Padres","592122":"- - -","488818":"Giants","600869":"Tigers","543543":"- - -","641684":"Angels","571974":"Diamondbacks","542208":"- - -","519333":"Padres","641857":"Rockies","534606":"- - -","641933":"Cardinals","476883":"Orioles","571718":"- - -","571918":"Diamondbacks","571875":"Diamondbacks","435064":"Twins","641343":"Rays","656941":"Cubs","554430":"Mets","592450":"Yankees","452095":"Braves","506747":"Cardinals","468504":"Brewers","593528":"Royals","621044":"Phillies","641525":"Reds","455104":"Rockies","425784":"- - -","596129":"Mariners","570267":"Brewers","571912":"Blue Jays","596103":"Giants","660162":"White Sox","621512":"Mets","454560":"Padres","607430":"- - -","608336":"Rangers","431145":"Blue Jays","607468":"Reds","605204":"Astros","624636":"Rangers","455139":"Rangers","449181":"Royals","642180":"Yankees","461865":"Mariners","501213":"Nationals","605548":"Indians","407812":"Rockies","572287":"Mariners","472528":"Angels","571437":"Phillies","571602":"White Sox","605131":"Dodgers","542908":"Brewers","622046":"Giants","606988":"Tigers","594798":"Mets","605244":"Giants","425772":"Diamondbacks","621559":"Pirates","664023":"Cubs","465753":"Phillies","457706":"- - -","608701":"Rays","599096":"Reds","642082":"Orioles","595284":"Phillies","592230":"Angels","605233":"Astros","592680":"Marlins","593934":"Twins","452657":"Cubs","571945":"Cardinals","518774":"- - -","592791":"Pirates","572204":"- - -","446481":"Pirates","448801":"Orioles","571578":"Diamondbacks","621433":"- - -","547379":"Indians","607257":"Padres","488771":"Twins","488671":"Diamondbacks","592685":"Rangers","500779":"Cubs","452104":"Padres","592351":"Rockies","543294":"Cubs","643327":"Diamondbacks","607536":"Rockies","605400":"Phillies","461829":"- - -","502706":"Giants","467100":"Pirates","592314":"Braves"}}
+
+for (var key in efb["EFB"]) {
+  efb["EFB"][key] = round(efb["EFB"][key], 3)
+}
+
+var efb_by_team = {}
+for (var key in efb["EFB"]) {
+  var team = efb["Team"][key]
+  var value = efb["EFB"][key]
+  if (efb_by_team[team] == undefined) {
+    efb_by_team[team] = value
+  } else {
+    efb_by_team[team] += value
+  }
+}
+
+for (var key in efb_by_team) {
+  efb_by_team[key] = round(efb_by_team[key], 3)
+}
+
+var ul = document.getElementById("myUL");
+
+for(var key in efb["Name"]) {
+  var li = document.createElement("li");
+  li.appendChild(document.createTextNode(efb["Name"][key] + ": " + efb["EFB"][key]))
+  ul.appendChild(li)
+}
+
+sortList(ul)
+
+ul = document.getElementById("teamUL");
+for (var key in efb_by_team) {
+  var li = document.createElement("li");
+  li.appendChild(document.createTextNode(key + ": " + efb_by_team[key]))
+  ul.appendChild(li)
+}
+
+sortList(ul)
+
+
+function myFunction(input, list) {
+    // Declare variables
+    var filter, ul, li, a, i, txtValue;
+    filter = input.value.toUpperCase();
+    if (input.id == "playerInput") {highlight(filter)}
+    //ul = document.getElementById(listId);
+    ul = list
+    li = ul.getElementsByTagName('li');
+  
+    // Loop through all list items, and hide those who don't match the search query
+    for (i = 0; i < li.length; i++) {
+      a = li[i].getElementsByTagName("a")[0];
+      a = li[i].textContent
+      txtValue = a
+      //txtValue = a.textContent || a.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        li[i].style.display = "";
+      } else {
+        li[i].style.display = "none";
+      }
+    }
+  }
+
+
+var color = "steelblue";
+
+var values = Object.keys(swap(efb["EFB"]))
+
+console.log(values)
+
+// A formatter for counts.
+var formatCount = d3.format(",.0f");
+
+var margin = {top: 20, right: 30, bottom: 30, left: 30},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var max = d3.max(values);
+var min = d3.min(values);
+var x = d3.scale.linear()
+      .domain([min, max])
+      .range([0, width]);
+
+// Generate a histogram using twenty uniformly-spaced bins.
+var data = d3.layout.histogram()
+    .bins(x.ticks(20))
+    (values);
+
+    console.log(data)
+
+var yMax = d3.max(data, function(d){return d.length});
+var yMin = d3.min(data, function(d){return d.length});
+var colorScale = d3.scale.linear()
+            .domain([yMin, yMax])
+            .range([d3.rgb(color).brighter(), d3.rgb(color).darker()]);
+
+var y = d3.scale.linear()
+    .domain([0, yMax])
+    .range([height, 0]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+svg.append("text")
+  .attr("class", "x label")
+  .attr("text-anchor", "end")
+  .attr("font-size", "30px")
+  .attr("x", width / 2 + 60)
+  .attr("y", height + 30)
+  .text("EFB")
+
+var bar = svg.selectAll(".bar")
+    .data(data)
+  .enter().append("g")
+    .attr("class", "bar")
+    .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
+
+bar.append("rect")
+    .attr("x", 1)
+    .attr("width", (x(data[0].dx) - x(0)) - 1)
+    .attr("height", function(d) { return height - y(d.y); })
+    .attr("fill", function(d) { return colorScale(d.y) });
+
+bar.append("text")
+    .attr("dy", ".75em")
+    .attr("y", -12)
+    .attr("x", (x(data[0].dx) - x(0)) / 2)
+    .attr("text-anchor", "middle")
+    .text(function(d) { return formatCount(d.y); });
+
+svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+
+
+function highlight(filter){
+  var vals = [] // valid EFB for the selected names
+  for (var key in efb["Name"]) {
+    if (efb["Name"][key].toUpperCase().indexOf(filter) > -1) {
+      vals.push(efb["EFB"][key])
+    }
+  }
+
+  if (vals.length > 10) {
+    return colorScale(d.y)
+  }
+
+  svg.selectAll("rect").attr("fill", function(d) {
+    for (var i = 0; i < vals.length; i++) {
+      let efb = vals[i]
+      if (efb >= d.x && efb <= d.x + d.dx) {
+        return "red"
+      }
+    }
+    return colorScale(d.y)
+  })
+
+}
+
+
+
+var d = document.getElementById('dataList');
+d.parentNode.appendChild(d);
+
+</script>
+<body>
+
+</html
