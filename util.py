@@ -271,7 +271,7 @@ def make_efb_series(batter_df):
 def make_efb_json(df_fangraphs, df_statcast):
     b_df = make_batter_df(b, statcast)
     efb_s = make_efb_series(b_df).sort_values(ascending=False)
-    return efb_s.rename("EFB").to_frame().merge(b_df[["Name", "Team"]], left_index=True, right_index=True).to_json(orient="columns")
+    return efb_s.rename("EFB").to_frame().merge(b_df[["Name", "Team", "HR", "3B", "2B", "1B", "SB", "SO", "BB", "PCA5", "PA"]], left_index=True, right_index=True).to_json(orient="columns")
 
 # makes efp json as taken by the efp variable in efp.html
 def make_efp_json(statcast):
@@ -282,4 +282,9 @@ def make_efp_json(statcast):
 
     pitcher_ids = playerid_reverse_lookup(ids)
 
-    return efp_s.rename("EFP").to_frame().merge(pitcher_ids[["name_last", "name_first", "key_mlbam"]], left_index=True, right_on="key_mlbam").set_index("key_mlbam", drop=True).to_json(orient="columns")
+    p_df = make_pitcher_df(statcast)
+    efp_s = make_efp_series(p_df).rename("EFP")
+    combined = p_df.merge(efp_s.to_frame(), left_index=True, right_index=True)
+    with_ids = combined.merge(pitcher_ids[["name_last", "name_first", "key_mlbam"]], left_index=True, right_on="key_mlbam").set_index("key_mlbam", drop=True)
+
+    return with_ids.to_json(orient="columns")
