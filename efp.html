@@ -90,12 +90,18 @@ for (var key in efp["EFP"]) {
   efp["EFP"][key] = round(efp["EFP"][key], 3)
 }
 
+
+function upperCaseFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 var ul = document.getElementById("myUL");
 
 for(var key in efp["name_last"]) {
   var li = document.createElement("li");
   li.id = "li" + key
-  li.appendChild(document.createTextNode(efp["name_first"][key] + " " + efp["name_last"][key] + ": " + efp["EFP"][key]))
+  li.appendChild(document.createTextNode(upperCaseFirstLetter(efp["name_first"][key]) + " " + 
+                                         upperCaseFirstLetter(efp["name_last"][key]) + ": " + efp["EFP"][key]))
 
   subUL = document.createElement("ul")
 
@@ -110,7 +116,7 @@ for(var key in efp["name_last"]) {
     field = components[i]
     var lisub = document.createElement("li")
     lisub.className = "subLI"
-    lisub.appendChild(document.createTextNode(field + ": " + efp[field][key]))
+    lisub.appendChild(document.createTextNode(field + ": " + round(efp[field][key], 3)))
     subUL.appendChild(lisub)
 
   }
