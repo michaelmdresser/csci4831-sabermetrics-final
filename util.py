@@ -277,8 +277,8 @@ def make_efb_json(df_fangraphs, df_statcast):
 def make_efp_json(statcast):
     efp_s = make_efp_series(make_pitcher_df(statcast))
     ids = []
-        for i in efp_s.index:
-            ids.append(i)
+    for i in efp_s.index:
+        ids.append(i)
 
     pitcher_ids = playerid_reverse_lookup(ids)
 
