@@ -11,11 +11,14 @@
 <body>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 
+<div id="wrapper" style="width: 80%; margin: 0 auto; text-align: center">
+
 <h1>EFP: Excitement Factor for Pitching</h1>
 <h5>Data from 2018</h5>
 <h3>Michael Dresser and Mark Wilmes</h3>
 <h5>
 <a href="https://github.com/michaelmdresser/csci4831-sabermetrics-final">Codebase</a>
+&nbsp;&nbsp;&nbsp;
 <a href="http://michaeldresser.io/csci4831-sabermetrics-final/efb.html">EFB</a>
 </h5>
 
@@ -24,18 +27,18 @@
 <p>PCA5 is a custom stat that is the number of plate appearances in which the pitch count went above 5.</p> 
 <p>Click on a player's name to see his stat breakdown.</p>
 
-<div id="dataList" style="width:800px">
+<div id="dataList" style="margin: 0 auto; width: 800px">
 <br>
-<div id="searchSection" style="width:350px; float: left">
+<div id="searchSection" style="width:350px; margin: 0 auto">
 <input type="text" id="playerInput" onkeyup="myFunction(playerInput, myUL)" placeholder="Search for names..">
 
-<ul id="myUL">
+<ul id="myUL" style="list-style-type: none; text-align: left; width:350px">
   <!-- <li><b>Name: EFB</b></li> -->
 </ul>
 
 </div>
 </div>
-
+</div>
 <script>
 function swap(json){
   var ret = {};
@@ -206,7 +209,7 @@ var xAxis = d3.svg.axis()
     .scale(x)
     .orient("bottom");
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("div").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
