@@ -7,6 +7,7 @@
 <html>
 <head>
 <title>CSCI 4831: Sabermetrics Final</title>
+<link rel="stylesheet" type="text/css" href="stylesheet.css">
 </head>
 <body>
 <script src="http://d3js.org/d3.v3.min.js"></script>
@@ -22,7 +23,7 @@
 <a href="http://michaeldresser.io/csci4831-sabermetrics-final/efb.html">EFB</a>
 </h5>
 
-<img src="efp.svg">
+<img src="efp.svg" style="-webkit-filter: invert(.85); filter: invert(.85);">
 <br>
 <p>PCA5 is a custom stat that is the number of plate appearances in which the pitch count went above 5.</p> 
 <p>Click on a player's name to see his stat breakdown.</p>
@@ -219,6 +220,7 @@ svg.append("text")
   .attr("class", "x label")
   .attr("text-anchor", "end")
   .attr("font-size", "30px")
+  .attr("fill", "#dddddd")
   .attr("x", width / 2 + 50)
   .attr("y", height + 30)
   .text("EFP")
@@ -240,11 +242,17 @@ bar.append("text")
     .attr("y", -12)
     .attr("x", (x(data[0].dx) - x(0)) / 2)
     .attr("text-anchor", "middle")
+    .attr("fill", "#dddddd")
     .text(function(d) { return formatCount(d.y); });
 
 svg.append("g")
     .attr("class", "x axis")
     .attr("transform", "translate(0," + height + ")")
+    .style({
+      //fill: "none",
+      stroke: "#dddddd",
+      //"stroke-width": "10"
+    })
     .call(xAxis);
 
 
@@ -266,7 +274,7 @@ function highlight(filter){
     for (var i = 0; i < vals.length; i++) {
       let efp = vals[i]
       if (efp >= d.x && efp <= d.x + d.dx) {
-        return "red"
+        return "#FFDC00"
       }
     }
     return colorScale(d.y)
