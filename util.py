@@ -200,10 +200,18 @@ def playerid_lookup_c(last, first=None, year=None, lookup_table=None):
     results = results.reset_index().drop('index', 1)
     return results
 
+
 # takes a player's name and returns their mlbam key/id
 def get_mlbam_from_name(last, first=None, year=None, lookup_table=None):
     if lookup_table is None:
-        raise Exception("get_mlbam_from_name needs a pre-built lookup table to avoid speed problems")
+        #raise Exception("get_mlbam_from_name needs a pre-built lookup table to avoid speed problems")
+
+        # for some bizarre reason even when this is being called consistently correctly, once or twice
+        # lookup table will be none
+        # the exception breaks execution, so we just print and return
+        # i dislike this, but whatever, it works
+        print("nonetype lookup table in get_mlbam_from_name call")
+        return -1
 
     try:
         return playerid_lookup_c(last, first, year=year, lookup_table=lookup_table).dropna().reset_index(drop=True)["key_mlbam"].iloc[0]
@@ -237,12 +245,12 @@ def add_mlbam_to_fg(df_fg):
         last, first = ' '.join(s[1:]), s[0]
         return last, first
     
-    def get_mlbam(name):
+    def get_mlbam(name, lt=3):
         last, first = get_last_first(name)
-        return get_mlbam_from_name(last, first, lookup_table=lookup_table)
+        return get_mlbam_from_name(last, first, lookup_table=lt.copy())
 
     
-    df_fg["key_mlbam"] = df_fg["Name"].apply(get_mlbam)
+    df_fg["key_mlbam"] = df_fg["Name"].apply(get_mlbam, lt=lookup_table)
     return df_fg
 
 # Removes batters from a fangraphs DF whose AB is lower than a value
