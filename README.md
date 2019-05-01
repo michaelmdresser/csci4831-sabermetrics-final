@@ -3,7 +3,7 @@
 
 [Explanation of statistics](https://github.com/michaelmdresser/csci4831-sabermetrics-final/blob/master/Sabermetrics%20Project%20Part%201.pdf)  
 [EFB site](http://michaeldresser.io/csci4831-sabermetrics-final/efb.html)  
-[EFP site](http://michaeldresser.io/csci4831-sabermetrics-final/efp.html)
+[EFP site](http://michaeldresser.io/csci4831-sabermetrics-final/efp.html)  
 [Video](https://github.com/michaelmdresser/csci4831-sabermetrics-final/blob/master/video.mp4)
 
 ## Repo Contents
